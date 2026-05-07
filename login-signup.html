@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explorer Login & Signup</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* CSS Variables */
+        :root {
+            --orange: #F47C3C;
+            --orange-h: #e06828;
+            --green-bg: #d6e8b0;
+            --brown: #3b1e0a;
+            --gray: #6b6b6b;
+            --border: #e0ddd5;
+            --white: #ffffff;
+            --radius: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #c8d8a0;
+            /* muted jungle green */
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 980px;
+        }
+
+        .card {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border-radius: 22px;
+            overflow: hidden;
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.28);
+            min-height: 620px;
+            background: var(--white);
+        }
+
+        /* LEFT PANEL */
+        .left-panel {
+            position: relative;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding: 24px;
+        }
+
+        .left-panel::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(60, 120, 40, 0.15), rgba(0, 0, 0, 0.08));
+            z-index: 1;
+        }
+
+        .left-panel.loading {
+            background: linear-gradient(90deg, #a8c77a 25%, #c8e09a 50%, #a8c77a 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.4s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        .refresh-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(6px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 2;
+            transition: background 0.2s;
+        }
+
+        .refresh-btn:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        .refresh-btn svg {
+            stroke: var(--white);
+            width: 20px;
+            height: 20px;
+        }
+
+        .spinning svg {
+            animation: spin 0.7s linear;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .credit-badge {
+            background: rgba(0, 0, 0, 0.45);
+            color: white;
+            font-size: 0.65rem;
+            padding: 3px 8px;
+            border-radius: 20px;
+            backdrop-filter: blur(4px);
+            z-index: 2;
+        }
+
+        .credit-badge a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .credit-badge a:hover {
+            text-decoration: underline;
+        }
+
+        .panel-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* RIGHT PANEL */
+        .right-panel {
+            background: rgba(235, 245, 210, 0.97);
+            /* soft lime-cream */
+            padding: 48px 44px 36px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .form-container {
+            max-width: 100%;
+        }
+
+        .welcome-title {
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--brown);
+            margin-bottom: 12px;
+        }
+
+        .welcome-subtext {
+            font-size: 0.88rem;
+            color: var(--gray);
+            max-width: 320px;
+            line-height: 1.55;
+            margin-bottom: 32px;
+        }
+
+        .form-fields {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .field label {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--brown);
+            margin-bottom: 6px;
+        }
+
+        .field input {
+            height: 46px;
+            padding: 0 14px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            background: var(--white);
+            font-family: 'Nunito', sans-serif;
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+        }
+
+        .field input:focus {
+            outline: none;
+            border-color: var(--orange);
+        }
+
+        .field input::placeholder {
+            color: #bbb;
+        }
+
+        .pass-wrap {
+            position: relative;
+        }
+
+        .eye-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: #aaa;
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 4px;
+            transition: color 0.2s;
+        }
+
+        .eye-toggle:hover {
+            color: var(--orange);
+        }
+
+        .create-account-btn {
+            width: 100%;
+            height: 50px;
+            margin-top: 6px;
+            background: var(--orange);
+            color: var(--white);
+            font-weight: 800;
+            font-size: 1rem;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        .create-account-btn:hover {
+            background: var(--orange-h);
+        }
+
+        .create-account-btn:active {
+            transform: scale(0.98);
+        }
+
+        .terms-text {
+            font-size: 0.75rem;
+            color: var(--gray);
+            text-align: center;
+            margin-top: 12px;
+            line-height: 1.5;
+        }
+
+        .terms-text strong u {
+            text-decoration: underline;
+            color: var(--brown);
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 16px 0;
+            color: var(--gray);
+            font-size: 0.85rem;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .divider span {
+            padding: 0 12px;
+        }
+
+        .social-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .social-btn {
+            height: 44px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            background: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            font-family: 'Nunito', sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .social-btn:hover {
+            border-color: #aaa;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .social-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .apple-btn svg {
+            color: #000;
+        }
+
+        .signin-link {
+            font-size: 0.82rem;
+            color: var(--gray);
+            text-align: center;
+            margin-top: 16px;
+        }
+
+        .signin-link strong {
+            color: var(--brown);
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .signin-link strong:hover {
+            text-decoration: underline;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 700px) {
+            .card {
+                grid-template-columns: 1fr;
+                min-height: auto;
+            }
+
+            .left-panel {
+                display: none;
+            }
+
+            .right-panel {
+                padding: 36px 24px 28px;
+            }
+
+            .two-col {
+                grid-template-columns: 1fr;
+                gap: 14px;
+            }
+
+            .social-buttons {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="card">
+            <!-- LEFT PANEL - Image Background -->
+            <div class="panel left-panel" id="bgPanel">
+                <div class="refresh-btn" id="refreshBtn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3" />
+                    </svg>
+                </div>
+                <div class="credit-badge">
+                    Photo by <a href="https://unsplash.com" target="_blank">Unsplash</a>
+                </div>
+                <div class="panel-overlay"></div>
+            </div>
+
+            <!-- RIGHT PANEL - Signup Form -->
+            <div class="panel right-panel">
+                <div class="form-container">
+                    <h1 class="welcome-title">Welcome Explorer!</h1>
+                    <p class="welcome-subtext">
+                        Log in now to continue your exciting journey and unlock new adventures waiting for you!
+                    </p>
+
+                    <div class="form-fields">
+                        <!-- Two-column row -->
+                        <div class="two-col">
+                            <div class="field">
+                                <label for="firstName">First Name</label>
+                                <input type="text" id="firstName" placeholder="Enter your first name">
+                            </div>
+                            <div class="field">
+                                <label for="lastName">Last Name</label>
+                                <input type="text" id="lastName" placeholder="Input Username">
+                            </div>
+                        </div>
+
+                        <div class="field">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" placeholder="Input your email">
+                        </div>
+
+                        <div class="field">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" id="phone" placeholder="Enter your phone number">
+                        </div>
+
+                        <div class="field">
+                            <label for="password">Password</label>
+                            <div class="pass-wrap">
+                                <input type="password" id="password" placeholder="Input your password">
+                                <button class="eye-toggle" id="eyeToggle">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <button class="create-account-btn" id="createAccountBtn">
+                            Create Account
+                        </button>
+
+                        <p class="terms-text">
+                            By continuing with Google, Apple, or Email, you agree to monkey<br>
+                            <strong><u>Terms of Service</u></strong> and <strong><u>Privacy Policy,</u></strong>
+                        </p>
+
+                        <div class="divider">
+                            <span>or continue with</span>
+                        </div>
+
+                        <div class="social-buttons">
+                            <button class="social-btn google-btn">
+                                <svg width="20" height="20" viewBox="0 0 24 24">
+                                    <path fill="#4285F4"
+                                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                                    <path fill="#34A853"
+                                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                                    <path fill="#FBBC05"
+                                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                                    <path fill="#EA4335"
+                                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                                </svg>
+                                <span>Google</span>
+                            </button>
+                            <button class="social-btn apple-btn">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                    <path
+                                        d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.31-2.33 1.05-3.11z" />
+                                </svg>
+                                <span>Apple</span>
+                            </button>
+                        </div>
+
+                        <p class="signin-link">
+                            Do have an account? <strong>Sign</strong>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // AUTO IMAGE ON LOAD
+        window.addEventListener('load', () => {
+            loadNewImage();
+            setupEventListeners();
+        });
+
+        const queries = [
+            'jungle monkey',
+            'tropical forest adventure',
+            'rainforest explorer',
+            'jungle animals',
+            'nature wildlife',
+            'forest adventure kids',
+            'jungle waterfall',
+            'tropical rainforest',
+            'monkey wildlife',
+            'adventure hiking'
+        ];
+
+        function loadNewImage() {
+            const panel = document.getElementById('bgPanel');
+            const q = queries[Math.floor(Math.random() * queries.length)];
+            const url = `https://source.unsplash.com/featured/?${encodeURIComponent(q)}&t=${Date.now()}`;
+
+            panel.classList.add('loading');
+
+            const img = new Image();
+            img.onload = () => {
+                panel.style.backgroundImage = `url('${url}')`;
+                panel.classList.remove('loading');
+            };
+            img.onerror = () => {
+                // Fallback to a default image if Unsplash fails
+                panel.style.backgroundImage = 'url(https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80)';
+                panel.classList.remove('loading');
+            };
+            img.src = url;
+        }
+
+        // REFRESH BUTTON
+        function setupEventListeners() {
+            const refreshBtn = document.getElementById('refreshBtn');
+            const eyeToggle = document.getElementById('eyeToggle');
+            const passwordInput = document.getElementById('password');
+            const createAccountBtn = document.getElementById('createAccountBtn');
+            const googleBtn = document.querySelector('.google-btn');
+            const appleBtn = document.querySelector('.apple-btn');
+            const signLink = document.querySelector('.signin-link strong');
+
+            refreshBtn.addEventListener('click', () => {
+                refreshBtn.classList.add('spinning');
+                loadNewImage();
+                setTimeout(() => refreshBtn.classList.remove('spinning'), 700);
+            });
+
+            // PASSWORD TOGGLE
+            eyeToggle.addEventListener('click', () => {
+                const isPassword = passwordInput.type === 'password';
+                passwordInput.type = isPassword ? 'text' : 'password';
+                const icon = eyeToggle.querySelector('i');
+                if (isPassword) {
+                    icon.classList.remove('fa-eye');
+                    icon.classList.add('fa-eye-slash');
+                } else {
+                    icon.classList.remove('fa-eye-slash');
+                    icon.classList.add('fa-eye');
+                }
+            });
+
+            // CREATE ACCOUNT BUTTON
+            createAccountBtn.addEventListener('click', () => {
+                const firstName = document.getElementById('firstName').value;
+                const lastName = document.getElementById('lastName').value;
+                const email = document.getElementById('email').value;
+                const phone = document.getElementById('phone').value;
+                const password = passwordInput.value;
+
+                // Simple validation
+                if (!firstName || !lastName || !email || !password) {
+                    alert('Please fill in all required fields.');
+                    return;
+                }
+
+                // Simulate account creation
+                createAccountBtn.textContent = 'Creating Account...';
+                createAccountBtn.disabled = true;
+
+                setTimeout(() => {
+                    alert(`Account created for ${firstName} ${lastName}! Check your email for verification.`);
+                    createAccountBtn.textContent = 'Create Account';
+                    createAccountBtn.disabled = false;
+                }, 1500);
+            });
+
+            // SOCIAL BUTTONS
+            googleBtn.addEventListener('click', () => {
+                alert('Google sign-in would be implemented here.');
+            });
+
+            appleBtn.addEventListener('click', () => {
+                alert('Apple sign-in would be implemented here.');
+            });
+
+            // SIGN IN LINK
+            signLink.addEventListener('click', () => {
+                alert('Redirecting to login page...');
+            });
+        }
+    </script>
+</body>
+
+</html>
